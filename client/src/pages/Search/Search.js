@@ -1,32 +1,47 @@
 import React, { Component } from "react";
 import { Col, Row, Container } from "../../components/Grid";
 import API from "../../utils/API";
-import { Link } from "react-router-dom";
 import { FormBtn, Input, TextArea } from "../../components/Form";
+import Card from "../../components/Card/Card";
+import Modal from "../../components/Modal";
 
-class Articles extends Component {
+class Search extends Component {
     state = {
         articles: [],
         topic: "",
         begin: "",
         end: "",
-        results: [],
-        error: ""
     };
 
     handleInputChange = event => {
-        this.setState({ search: event.target.value });
+        const { name, value } = event.target;
+        this.setState({
+            [name]: value
+        });
     };
+
+    getArticles = () => {
+        API.getArticles({
+            topic: this.state.topic,
+            begin: this.state.begin,
+            end: this.state.end
+        })
+            .then(res =>
+                this.setState({
+                    articles: res.data,
+                })
+            ).catch(err => console.log(err));
+
+    }
     handleFormSubmit = event => {
         event.preventDefault();
-        API.searchArticles(this.state.search).then(res => {
-            if (res.data.status === "error") {
-                throw new Error(res.data.message);
-            }
-            this.setState({ results: res.data.message, error: "" });
-        })
-            .catch(err => this.setState({ error: err.message }));
+        this.getArticles();
     };
+
+    handleArticleSave = id => {
+        const article = this.state.articles.find(article => article._id === id);
+        API.saveArticle(article).then(res => this.getArticles());
+    }
 
     render() {
         return (
@@ -37,13 +52,27 @@ class Articles extends Component {
                             <Input value={this.state.topic} onChange={this.handleInputChange} name="topic" placeholder="Topic (required)" />
                             <Input value={this.state.begin} onChange={this.handleInputChange} name="begin" placeholder="Begin Date (YYYYMMDD)" />
                             <Input value={this.state.end} onChange={this.handleInputChange} name="end" placeholder="End Date (YYYYMMDD)" />
-                            <Link to={/results}>
-                                < FormBtn disabled={!(this.state.topic && this.state.begin && this.state.end)}
+                            < FormBtn disabled={!(this.state.topic && this.state.begin && this.state.end)}
                                 onClick={this.handleFormSubmit}>
                                 Search
                             </FormBtn>
-                            </Link>
                         </form>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col size="m12">
+                        {this.state.articles.map(article => (
+                            <Card
+                                key={article._id}
+                                _id={article._id}
+                                title={article.headline.main}
+                                url={article.web_url}
+                                date={article.pub_date}
+                            />
+                        ))}
+                        <Modal
+                            handleClick={this.handleArticleSave}
+                        />
                     </Col>
                 </Row>
             </Container >
@@ -51,4 +80,4 @@ class Articles extends Component {
     }
 }
 
-export default Articles;
+export default Search;
