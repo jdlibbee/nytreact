@@ -15,3 +15,5 @@ const NoMatch = () => (
         </Row>
     </Container>
 )
+
+export default NoMatch; 

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Col, Row, Container } from "../../components/Grid";
 import API from "../../utils/API";
-import { FormBtn, Input, TextArea } from "../../components/Form";
+import { FormBtn, Input } from "../../components/Form";
 import Card from "../../components/Card/Card";
 import Modal from "../../components/Modal";
 
